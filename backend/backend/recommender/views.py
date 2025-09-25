@@ -33,6 +33,7 @@ class CropRecommendationView(APIView):
             
             # Return the prediction in a JSON response
             return Response({'recommended_crop': prediction[0]})
+            print(prediction[1])
 
         except (ValueError, TypeError) as e:
             return Response({"error": f"Invalid data format: {e}"}, status=400)
