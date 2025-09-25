@@ -1,29 +1,74 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// You can find simple icons online (e.g., from flaticon.com) and place them in src/assets
-// Or use an icon library like React-Icons
-
 function App() {
+  // State for the main recommendation form
   const [formData, setFormData] = useState({
     N: '', P: '', K: '', temperature: '', humidity: '', ph: '', rainfall: ''
   });
+
+  // State for managing UI feedback
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Create a ref for the form section
+  // State specifically for the navbar temperature
+  const [navTemperature, setNavTemperature] = useState(null);
+
+  // A ref to allow smooth scrolling to the form
   const formRef = useRef(null);
 
+  // Fetch weather once on page load for the navbar
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const response = await axios.get(`http://127.0.0.1:8000/api/weather/?lat=${latitude}&lon=${longitude}`);
+          setNavTemperature(Math.round(response.data.temperature));
+        } catch (err) {
+          console.error("Could not fetch navbar weather.");
+        }
+      });
+    }
+  }, []); // Empty array ensures this runs only once
+
+  // Handles changes in the form input fields
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Smoothly scrolls to the form section
   const handleScrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Gets current weather to populate the form fields
+  const handleGetWeather = () => {
+    if (navigator.geolocation) {
+      setError('');
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const response = await axios.get(`http://127.0.0.1:8000/api/weather/?lat=${latitude}&lon=${longitude}`);
+          setFormData(prevData => ({
+            ...prevData,
+            temperature: response.data.temperature.toFixed(1),
+            humidity: response.data.humidity.toFixed(1),
+          }));
+        } catch (err) {
+          setError('Could not fetch weather data. Please enter it manually.');
+        }
+      }, () => {
+        setError('Geolocation is not enabled. Please allow location access.');
+      });
+    } else {
+      setError('Geolocation is not supported by your browser.');
+    }
+  };
+
+  // Submits the form data to the backend for a crop recommendation
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -34,7 +79,7 @@ function App() {
       const response = await axios.post('http://127.0.0.1:8000/api/recommend/', formData);
       setResult(response.data.recommended_crop);
     } catch (err) {
-      setError('Failed to get recommendation. Please ensure the backend server is running and check your input values.');
+      setError('Failed to get recommendation. Please ensure the backend is running and all fields are correct.');
     } finally {
       setLoading(false);
     }
@@ -42,46 +87,53 @@ function App() {
 
   return (
     <div className="App">
-      {/* --- Navigation Bar --- */}
       <nav className="navbar">
         <div className="navbar-logo">CropAI 🌾</div>
+        {navTemperature !== null && (
+          <div className="navbar-weather">
+            ☀️ {navTemperature}°C in Ahmedabad
+          </div>
+        )}
         <button onClick={handleScrollToForm} className="nav-button">Get Recommendation</button>
       </nav>
 
-      {/* --- Hero Section --- */}
       <header className="hero-section">
         <div className="hero-content">
           <h1>Smarter Farming Starts Here.</h1>
-          <p>Get instant, AI-powered crop recommendations tailored for your farm's unique soil and climate conditions.</p>
+          <p>Get instant, AI-powered crop recommendations tailored for your farm's unique soil and climate conditions in Ahmedabad.</p>
           <button onClick={handleScrollToForm} className="cta-button">Find Your Perfect Crop</button>
         </div>
       </header>
 
-      {/* --- How It Works Section --- */}
       <section className="how-it-works-section">
         <h2>A Simple Path to a Better Harvest</h2>
         <div className="steps-container">
           <div className="step">
             <div className="step-icon">📄</div>
             <h3>1. Enter Your Data</h3>
-            <p>Provide your field's soil and weather data in the form below.</p>
+            <p>Provide your field's data below, or use your current weather to autofill.</p>
           </div>
           <div className="step">
             <div className="step-icon">🧠</div>
             <h3>2. AI Analyzes</h3>
-            <p>Our AI analyzes thousands of data points to find the perfect match.</p>
+            <p>Our AI analyzes thousands of data points to find the perfect match for Gujarat's climate.</p>
           </div>
           <div className="step">
             <div className="step-icon">🏆</div>
             <h3>3. Get Recommendation</h3>
-            <p>Receive an instant recommendation for the most suitable crop.</p>
+            <p>Receive an instant recommendation for the most suitable and profitable crop.</p>
           </div>
         </div>
       </section>
 
-      {/* --- The Form Section --- */}
       <section ref={formRef} className="form-section">
         <h2>Find Your Perfect Crop</h2>
+        <div className="weather-button-container">
+          <button type="button" onClick={handleGetWeather} className="weather-button">
+            📍 Use Current Location's Weather
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="crop-form">
           <div className="form-grid">
             <input type="number" name="N" value={formData.N} onChange={handleChange} placeholder="Nitrogen (N)" required />
@@ -97,7 +149,6 @@ function App() {
           </button>
         </form>
 
-        {/* --- Result Display --- */}
         {result && !loading && (
           <div className="result-card">
             <h3>Our Recommendation For You</h3>
@@ -108,9 +159,8 @@ function App() {
         {error && !loading && <p className="error">{error}</p>}
       </section>
 
-      {/* --- Footer --- */}
       <footer className="footer">
-        <p>© 2025 CropAI Ahmedabad | Built with AI for a greener future.</p>
+        <p>© 2025 CropAI Ahmedabad | Built with AI for a greener future. dharecha manoj</p>
       </footer>
     </div>
   );

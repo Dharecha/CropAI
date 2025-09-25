@@ -1,6 +1,19 @@
 /* --- Import Fonts --- */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@400;500&display=swap');
 
+/* --- Animation Keyframes --- */
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* --- CSS Variables (Color Palette) --- */
 :root {
   --primary-green: #2C5F2D;
@@ -39,12 +52,26 @@ h3 {
   position: sticky;
   top: 0;
   z-index: 1000;
+  gap: 1rem;
 }
 
 .navbar-logo {
   font-family: 'Poppins', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
+  margin-right: auto;
+  /* Pushes other items to the right */
+}
+
+.navbar-weather {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+  background-color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  animation: fadeInSlideUp 0.5s ease-out forwards;
 }
 
 .nav-button {
@@ -141,6 +168,32 @@ h2 {
 }
 
 /* --- Form Section --- */
+.form-section h2 {
+  margin-bottom: 1rem;
+}
+
+.weather-button-container {
+  margin-bottom: 1.5rem;
+}
+
+.weather-button {
+  background-color: var(--white-color);
+  color: var(--primary-green);
+  border: 2px solid var(--primary-green);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.weather-button:hover {
+  background-color: var(--primary-green);
+  color: var(--white-color);
+  transform: translateY(-2px);
+}
+
 .crop-form {
   max-width: 800px;
   margin: 2rem auto 0 auto;
@@ -163,12 +216,16 @@ h2 {
   border-radius: 8px;
   border: 1px solid #ccc;
   box-sizing: border-box;
-  /* Important for padding */
 }
 
 .form-button {
   margin-top: 2rem;
   width: 100%;
+}
+
+.form-button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
 }
 
 /* --- Result & Error Display --- */
