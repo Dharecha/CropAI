@@ -88,7 +88,7 @@ function App() {
   return (
     <div className="App">
       <nav className="navbar">
-        <div className="navbar-logo">CropAI 🌾</div>
+        <div className="navbar-logo">KrishiRatna 🌱</div>
         {navTemperature !== null && (
           <div className="navbar-weather">
             ☀️ {navTemperature}°C in Ahmedabad
@@ -160,7 +160,7 @@ function App() {
       </section>
 
       <footer className="footer">
-        <p>© 2025 CropAI Ahmedabad | Built with AI for a greener future. dharecha manoj</p>
+        <p>© 2025 KrishiRatna Ahmedabad | Built with AI for a greener future. GreenCoders</p>
       </footer>
     </div>
   );
